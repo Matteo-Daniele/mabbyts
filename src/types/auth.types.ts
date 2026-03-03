@@ -1,0 +1,30 @@
+// ¿Qué enviamos al backend para hacer login?
+export interface LoginRequest {
+    email: string;
+    password: string;
+}
+
+// ¿Qué nos responde el backend cuando el login es exitoso?
+export interface LoginResponse {
+    access_token: string;
+}
+
+// ¿Qué enviamos al backend para registrar un usuario?
+export interface RegisterRequest {
+    name: string;
+    lastname: string;
+    dni: string;
+    email: string;
+    password: string;
+    direction: string;
+    account_type: 'normal' | 'premium';
+}
+
+// ¿Cómo representamos al usuario en el frontend?
+export interface User {
+    _id: string;
+    name: string;
+    lastname: string;
+    email: string;
+    account_type: 'normal' | 'premium';
+}
