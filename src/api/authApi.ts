@@ -1,5 +1,3 @@
-import { jsx } from "react/jsx-runtime";
-import App from "../App";
 import type { LoginRequest, LoginResponse, RegisterRequest } from "../types/auth.types";
 
 const API_URL = import.meta.env.VITE_API_URL;
