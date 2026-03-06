@@ -1,1 +1,30 @@
 @import "tailwindcss";
+
+@theme {
+    /* Colores de Mabbyts - tonos marrones, caramelo y crema */
+    --color-mabbyts-cream: #FDF6E9;
+    --color-mabbyts-tan: #C9A86C;
+    --color-mabbyts-caramel: #B8860B;
+    --color-mabbyts-brown: #8B6914;
+    --color-mabbyts-dark: #5D4E37;
+
+    /* Colores base */
+    --color-background: #FFFDF8;
+    --color-foreground: #5D4E37;
+    --color-border: #E8DCC8;
+
+    /* Fuentes */
+    --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+* {
+    border-color: var(--color-border);
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
