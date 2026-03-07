@@ -7,7 +7,7 @@ export function Dashboard() {
 
     const handleLogout = () => {
         logout()
-        navigate('/login');
+        navigate('/login', { replace: true });
     }
 
     return (

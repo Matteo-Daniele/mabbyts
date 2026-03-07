@@ -1,23 +1,27 @@
 import { useState } from 'react'
 import { Eye, EyeOff, Mail, Lock, Sparkles } from 'lucide-react'
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 
 export default function LoginPage() {
+  const { login } = useAuth();
+  const { isAuthenticated } = useAuth()
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />
+  }
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const { login } = useAuth();
-
   const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-
     try {
       await login({ email, password });
       navigate('/dashboard');
