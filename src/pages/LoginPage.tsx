@@ -4,8 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Navigate } from 'react-router-dom';
 
 export default function LoginPage() {
-  const { login } = useAuth();
-  const { isAuthenticated } = useAuth()
+  const { login, isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />
@@ -24,6 +23,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await login({ email, password });
+      sessionStorage.setItem('justLoggedIn', 'true');
       navigate('/dashboard');
     } catch (err) {
       if (err instanceof Error) {
