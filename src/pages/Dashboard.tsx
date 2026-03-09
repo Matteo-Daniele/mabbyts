@@ -7,14 +7,13 @@ import {
     BarChart3,
     Settings,
     LogOut,
-    User,
+    User as UserIcon,
     Sun,
     Dumbbell,
     BookOpen,
     Droplets,
     PenLine,
     ChevronRight,
-    Flame,
     CheckCircle2,
     Circle,
     TrendingUp,
@@ -38,7 +37,7 @@ const NAV_ITEMS = [
 ];
 
 export function Dashboard() {
-    const { logout } = useAuth();
+    const { logout, activeUser } = useAuth();
     const navigate = useNavigate();
     const [completados, setCompletados] = useState<number[]>([]);
 
@@ -171,7 +170,7 @@ export function Dashboard() {
                         {/* Barra de progreso decorativa */}
                         <div className="mt-4 w-48 h-1 bg-mabbyts-tan/15 rounded-full overflow-hidden">
                             <div
-                                className="h-full rounded-full bg-gradient-to-r from-mabbyts-tan via-mabbyts-caramel to-mabbyts-tan"
+                                className="h-full rounded-full bg-linear-to-r from-mabbyts-tan via-mabbyts-caramel to-mabbyts-tan"
                                 style={{
                                     animation: 'splash-shimmer 1.5s ease-in-out infinite',
                                     width: '60%',
@@ -190,8 +189,8 @@ export function Dashboard() {
                     {/* Logo */}
                     <div className="p-6 border-b border-white/10">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-mabbyts-caramel to-mabbyts-tan flex items-center justify-center shadow-lg">
-                                <Flame className="w-5 h-5 text-white" />
+                            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-mabbyts-caramel to-mabbyts-tan flex items-center justify-center shadow-lg">
+                                <img src="/icon-logon.png" alt="logo" className="w-full h-full object-cover rounded-xl" />
                             </div>
                             <div>
                                 <h1 className="text-white font-bold text-lg tracking-tight">Mabbyts</h1>
@@ -222,12 +221,12 @@ export function Dashboard() {
                     {/* Perfil + Logout (abajo del sidebar) */}
                     <div className="p-4 border-t border-white/10">
                         <div className="flex items-center gap-3 px-2 py-2 mb-3">
-                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-mabbyts-tan to-mabbyts-caramel flex items-center justify-center flex-shrink-0">
-                                <User className="w-4 h-4 text-white" />
+                            <div className="w-9 h-9 rounded-full bg-linear-to-br from-mabbyts-tan to-mabbyts-caramel flex items-center justify-center shrink-0">
+                                <UserIcon className="w-4 h-4 text-white" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="text-white text-sm font-medium truncate">Usuario</p>
-                                <p className="text-white/40 text-xs truncate">usuario@email.com</p>
+                                <p className="text-white text-sm font-medium truncate">{activeUser?.name} {activeUser?.lastname}</p>
+                                <p className="text-white/40 text-xs truncate">{activeUser?.email}</p>
                             </div>
                         </div>
                         <button
@@ -269,7 +268,7 @@ export function Dashboard() {
                         </div>
                         <div className="w-full h-3 bg-mabbyts-cream rounded-full overflow-hidden">
                             <div
-                                className="h-full bg-gradient-to-r from-mabbyts-caramel to-mabbyts-tan rounded-full transition-all duration-500 ease-out"
+                                className="h-full bg-linear-to-r from-mabbyts-caramel to-mabbyts-tan rounded-full transition-all duration-500 ease-out"
                                 style={{ width: `${progreso}%` }}
                             />
                         </div>
@@ -296,7 +295,7 @@ export function Dashboard() {
                                     >
                                         {/* Ícono del check */}
                                         <div
-                                            className={`flex-shrink-0 transition-all duration-300 ${completado ? "text-mabbyts-caramel scale-110" : "text-mabbyts-tan/40"
+                                            className={`shrink-0 transition-all duration-300 ${completado ? "text-mabbyts-caramel scale-110" : "text-mabbyts-tan/40"
                                                 }`}
                                         >
                                             {completado ? (
@@ -308,7 +307,7 @@ export function Dashboard() {
 
                                         {/* Ícono del hábito */}
                                         <div
-                                            className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 ${completado
+                                            className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 ${completado
                                                 ? "bg-mabbyts-caramel/15 text-mabbyts-caramel"
                                                 : "bg-mabbyts-cream text-mabbyts-tan"
                                                 }`}

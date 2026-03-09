@@ -51,11 +51,11 @@ export default function LoginPage() {
           {/* Logo Section */}
           <div className="flex flex-col items-center mb-8">
             <div className="relative">
-              <div className="absolute inset-0 bg-mabbyts-caramel/30 rounded-full blur-xl scale-110" />
+              <div className="absolute inset-0 rounded-full blur-xl scale-110" />
               <img
                 src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Gemini_Generated_Image_7erze77erze77erz-4EZOI7L0OGQOMftw59UYNyO8jQYQpS.png"
                 alt="Mabbyts Software Solutions"
-                className="relative w-32 h-32 object-contain drop-shadow-lg"
+                className="relative w-32 h-32 object-contain"
               />
             </div>
             <h1 className="mt-4 text-2xl font-bold text-mabbyts-dark">
@@ -232,7 +232,7 @@ export default function LoginPage() {
           <p className="mt-6 text-center text-sm text-mabbyts-brown/70">
             No tienes una cuenta?{' '}
             <a
-              href="#"
+              href="/register"
               className="font-semibold text-mabbyts-brown hover:text-mabbyts-dark transition-colors"
             >
               Registrate gratis

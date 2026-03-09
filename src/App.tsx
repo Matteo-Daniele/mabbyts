@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { Dashboard } from './pages/Dashboard'
 import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
 
 function App() {
 
@@ -25,6 +26,8 @@ function App() {
             </ProtectedRoute>
 
           }></Route>
+
+          <Route path='/register' element={<RegisterPage />}></Route>
 
           <Route path='*' element={<Navigate to="/login" replace />}></Route>
 
