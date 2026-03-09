@@ -1,4 +1,4 @@
-import type { LoginRequest, LoginResponse, RegisterRequest } from "../types/auth.types";
+import type { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from "../types/auth.types";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -26,7 +26,7 @@ export async function loginUser(credentials: LoginRequest): Promise<LoginRespons
     // ↑ Retorna: { access_token: "eyJhbGci..." }
 }
 
-export async function registerUser(userData: RegisterRequest): Promise<void> {
+export async function registerUser(userData: RegisterRequest): Promise<RegisterResponse> {
     const response = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: {
@@ -39,4 +39,6 @@ export async function registerUser(userData: RegisterRequest): Promise<void> {
         const errorData = await response.json().catch(() => null);
         throw new Error(errorData?.message || 'Error al registrarse');
     }
+
+    return response.json()
 }

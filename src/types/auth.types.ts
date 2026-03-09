@@ -17,7 +17,10 @@ export interface RegisterRequest {
     email: string;
     password: string;
     direction: string;
-    account_type: 'normal' | 'premium';
+}
+
+export interface RegisterResponse {
+    user: User;
 }
 
 // ¿Cómo representamos al usuario en el frontend?
@@ -25,6 +28,8 @@ export interface User {
     _id: string;
     name: string;
     lastname: string;
+    dni: string;
     email: string;
-    account_type: 'normal' | 'premium';
+    direction: string;
+    account_type: 'normal' | 'premium' | 'admin';
 }

@@ -1,11 +1,14 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import type { LoginRequest } from "../types/auth.types";
-import { loginUser } from "../api/authApi";
+import type { LoginRequest, RegisterRequest, User } from "../types/auth.types";
+import { loginUser, registerUser } from "../api/authApi";
+import { getActiveUser } from "../api/userApi";
 
 interface AuthContextType {
     token: string | null;
     isAuthenticated: boolean;
     login: (credentials: LoginRequest) => Promise<void>;
+    register: (credentials: RegisterRequest) => Promise<void>;
+    activeUser: User | null;
     logout: () => void;
     loading: boolean;
 }
@@ -17,18 +20,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [token, setToken] = useState<string | null>(null);
     // Estado: loading (mientras revisamos si hay token en localStorage)
     const [loading, setLoading] = useState(true);
+
+    const [activeUser, setActiveUser] = useState<User | null>(null);
     // ─── Al montar el componente, revisar si hay un token guardado ───
     useEffect(() => {
         // useEffect se ejecuta UNA VEZ cuando el componente se monta.
         // Acá revisamos si el usuario ya se había logueado antes
         // (su token está guardado en localStorage).
-        const savedToken = localStorage.getItem('token');
-        if (savedToken) {
-            setToken(savedToken);
-        }
-        setLoading(false);
+        const checkAuthStatus = async () => {
+            const savedToken = localStorage.getItem('token');
+            if (savedToken) {
+                setToken(savedToken);
+                try {
+                    const userProfile = await getActiveUser(savedToken)
+                    setActiveUser(userProfile);
+                } catch (error) {
+                    console.error("error fetching user profile:", error);
+                }
+            }
+            setLoading(false);
+        };
+
+        checkAuthStatus();
         // ↑ Ya terminamos de verificar, dejamos de mostrar "cargando..."
-    }, []);
+    }, [token]);
     // ↑ [] = array vacío de dependencias = se ejecuta solo al montar
     // ─── Función de login ───
 
@@ -42,6 +57,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setToken(response.access_token);
             // 3. Guardamos el token en localStorage (para que persista al refrescar)
             localStorage.setItem('token', response.access_token);
+        }
+    }
+
+    const register = async (credentials: RegisterRequest) => {
+        const response = await registerUser(credentials);
+
+        if (!response) {
+            throw new Error('Error al registrar el usuario');
+        } else {
+            console.log(response)
         }
     }
 
@@ -61,6 +86,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 isAuthenticated: token !== null,
                 // ↑ Si hay token, está autenticado. Simple.
                 login,
+                register,
+                activeUser,
                 logout,
                 loading,
             }}
