@@ -33,3 +33,15 @@ export interface User {
     direction: string;
     account_type: 'normal' | 'premium' | 'admin';
 }
+
+export interface habit {
+    _id: string;
+    name: string;
+    description: string;
+    userId: string;
+    frecuency: "daily" | "weekly";
+    objective: string;
+    category: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
