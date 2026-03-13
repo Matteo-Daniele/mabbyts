@@ -38,10 +38,7 @@ export interface habit {
     _id: string;
     name: string;
     description: string;
-    userId: string;
-    frecuency: "daily" | "weekly";
+    frequency: "daily" | "weekly";
     objective: string;
     category: string;
-    createdAt: Date;
-    updatedAt: Date;
 }

@@ -5,6 +5,7 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import { Dashboard } from './pages/Dashboard'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import HabitPage from './pages/HabitPage'
 
 function App() {
 
@@ -22,6 +23,16 @@ function App() {
             <ProtectedRoute>
 
               <Dashboard />
+
+            </ProtectedRoute>
+
+          }></Route>
+
+          <Route path='/habits' element={
+
+            <ProtectedRoute>
+
+              <HabitPage />
 
             </ProtectedRoute>
 
