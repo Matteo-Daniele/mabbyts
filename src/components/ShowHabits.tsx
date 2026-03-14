@@ -1,24 +1,13 @@
 import {
     Target,
-    Sun,
-    Dumbbell,
-    BookOpen,
-    Droplets,
-    PenLine,
     CheckCircle2,
     Circle,
     TrendingUp,
+    Pencil,
+    Trash2
 } from "lucide-react";
 import { useState } from "react";
 import type { habit } from "../types/auth.types";
-
-const HABITOS_DEL_DIA = [
-    { id: 1, nombre: "Meditar 10 minutos", icono: Sun, categoria: "Bienestar" },
-    { id: 2, nombre: "Ejercicio 30 minutos", icono: Dumbbell, categoria: "Salud" },
-    { id: 3, nombre: "Leer 20 páginas", icono: BookOpen, categoria: "Aprendizaje" },
-    { id: 4, nombre: "Tomar 2L de agua", icono: Droplets, categoria: "Salud" },
-    { id: 5, nombre: "Escribir en el diario", icono: PenLine, categoria: "Bienestar" },
-];
 
 export default function ShowHabits({ habitList }: { habitList?: habit[] }) {
     const [completados, setCompletados] = useState<string[]>([]);
@@ -65,7 +54,7 @@ export default function ShowHabits({ habitList }: { habitList?: habit[] }) {
                     {habitos?.map((habito) => {
                         const completado = completados.includes(habito._id);
                         return (
-                            <button
+                            <div
                                 key={habito._id}
                                 onClick={() => toggleHabito(habito._id)}
                                 className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 cursor-pointer text-left ${completado
@@ -96,6 +85,14 @@ export default function ShowHabits({ habitList }: { habitList?: habit[] }) {
                                         {habito.name}
                                     </p>
                                     <p
+                                        className={`text-sm mt-0.5 transition-all duration-300 ${completado
+                                            ? "text-mabbyts-brown/50"
+                                            : "text-mabbyts-brown"
+                                            }`}
+                                    >
+                                        {habito.objective}
+                                    </p>
+                                    <p
                                         className={`text-xs mt-0.5 transition-all duration-300 ${completado
                                             ? "text-mabbyts-brown/25"
                                             : "text-mabbyts-brown/50"
@@ -111,7 +108,22 @@ export default function ShowHabits({ habitList }: { habitList?: habit[] }) {
                                         ¡Hecho!
                                     </span>
                                 )}
-                            </button>
+                                {/* Botones Edit y Delete */}
+                                <div className="flex items-center gap-1 shrink-0 ml-2">
+                                    <button
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="p-2 text-mabbyts-brown/50 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                                    >
+                                        <Pencil className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="p-2 text-mabbyts-brown/50 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                                    >
+                                        <Trash2 className="w-5 h-5" />
+                                    </button>
+                                </div>
+                            </div>
                         );
                     })}
                 </div>

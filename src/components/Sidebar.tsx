@@ -9,24 +9,35 @@ import {
     ChevronRight,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 const NAV_ITEMS = [
     { nombre: "Dashboard", urlName: "dashboard", icono: LayoutDashboard, activo: true },
     { nombre: "Hábitos", urlName: "habits", icono: Target, activo: false },
-    { nombre: "Estadísticas", urlName: "dashboard", icono: BarChart3, activo: false },
-    { nombre: "Configuración", urlName: "dashboard", icono: Settings, activo: false },
+    { nombre: "Estadísticas", urlName: "stats", icono: BarChart3, activo: false },
+    { nombre: "Configuración", urlName: "config", icono: Settings, activo: false },
 ];
 
 export default function Sidebar() {
     const { logout, activeUser } = useAuth();
     const navigate = useNavigate();
-
+    const location = useLocation();
 
     const handleLogout = () => {
         logout();
         navigate("/login", { replace: true });
     };
+
+    useEffect(() => {
+        NAV_ITEMS.map((it) => {
+            if (location.pathname == `/${it.urlName}`) {
+                it.activo = true;
+            } else {
+                it.activo = false;
+            }
+        })
+    }, [])
 
     const handleNavegation = (item: any) => {
         navigate(`/${item.urlName}`, { replace: true })
