@@ -1,25 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ShowHabits from "../components/ShowHabits";
 import Sidebar from "../components/Sidebar";
 import type { habit } from "../types/auth.types";
 import { Plus, X } from "lucide-react";
+import { getHabits, postHabits } from "../api/habitsApi";
 
 const INITIAL_HABIT_STATE = {
     name: "",
     description: "Ej: Meditar todas las mañanas",
     frequency: "daily" as "daily" | "weekly",
     objective: "",
-    category: "",
+    category: "Salud",
 };
 
 export default function HabitPage() {
     const [habits, setHabits] = useState<habit[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
     const [newHabit, setNewHabit] = useState(INITIAL_HABIT_STATE);
 
 
-    const createHabit = () => {
+    const createHabit = async () => {
         const tempId = Date.now().toString();
         const habitToAdd: habit = {
             _id: tempId,
@@ -28,7 +28,28 @@ export default function HabitPage() {
         setHabits((prev) => [...prev, habitToAdd]);
         setIsModalOpen(false);
         setNewHabit(INITIAL_HABIT_STATE);
+
+        try {
+            const habitReal = await postHabits(newHabit);
+            setHabits((prev) => prev.map((h) => (h._id) == tempId ? habitReal : h));
+        } catch (error) {
+            setHabits((prev) => prev.filter((h) => h._id !== tempId));
+            console.error("error al crear el habito", error)
+        }
     }
+
+    const getAllHabits = async () => {
+        try {
+            const allHabits = await getHabits();
+            setHabits(allHabits)
+        } catch (error) {
+            console.error("error al traer los habitos", error);
+        }
+    }
+
+    useEffect(() => {
+        getAllHabits();
+    }, [])
 
     return (
         <div className="flex min-h-screen bg-background">

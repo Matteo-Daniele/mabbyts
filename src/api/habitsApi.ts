@@ -1,4 +1,5 @@
 import type { habit } from "../types/auth.types";
+import { getActiveUser } from "./userApi";
 
 const API_URL = import.meta.env.VITE_API_URL
 
@@ -17,13 +18,20 @@ export async function getHabits() {
     return response.json();
 }
 
-export async function postHabits(habit: habit) {
+export async function postHabits(habit: any) {
+    const savedToken = localStorage.getItem('token');
+    const activeUser = getActiveUser(savedToken);
+    const userId = (await activeUser)._id;
+    const habitSended = {
+        ...habit, userId
+    }
+    console.log(habitSended);
     const response = await fetch(`${API_URL}/habits`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(habit),
+        body: JSON.stringify(habitSended),
     })
     if (!response.ok) {
         const errorData = await response.json().catch(() => null);
