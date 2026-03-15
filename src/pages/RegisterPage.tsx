@@ -2,7 +2,7 @@ import { useState } from "react";
 import { User as UserIcon, Mail, Lock, Sparkles, MapPin, Hash } from 'lucide-react';
 import { useAuth } from "../context/AuthContext";
 import type { RegisterRequest } from "../types/auth.types";
-import { replace, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function RegisterPage() {
     const { register } = useAuth();

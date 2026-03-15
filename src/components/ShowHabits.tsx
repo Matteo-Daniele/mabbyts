@@ -8,8 +8,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import type { habit } from "../types/auth.types";
-
 export default function ShowHabits({ habitList }: { habitList?: habit[] }) {
+
     const [completados, setCompletados] = useState<string[]>([]);
 
     const habitos = habitList;
