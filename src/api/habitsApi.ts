@@ -4,7 +4,10 @@ import { getActiveUser } from "./userApi";
 const API_URL = import.meta.env.VITE_API_URL
 
 export async function getHabits() {
-    const response = await fetch(`${API_URL}/habits`, {
+    const savedToken = localStorage.getItem('token');
+    const activeUser = await getActiveUser(savedToken);
+    const userId = activeUser._id;
+    const response = await fetch(`${API_URL}/habits/user/${userId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -14,14 +17,15 @@ export async function getHabits() {
     if (!response.ok) {
         throw new Error('Error al obtener los habitos');
     }
-
-    return response.json();
+    return response.json()
 }
+
+
 
 export async function postHabits(habit: any) {
     const savedToken = localStorage.getItem('token');
-    const activeUser = getActiveUser(savedToken);
-    const userId = (await activeUser)._id;
+    const activeUser = await getActiveUser(savedToken);
+    const userId = activeUser._id;
     const habitSended = {
         ...habit, userId
     }

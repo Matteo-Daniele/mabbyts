@@ -4,6 +4,7 @@ import Sidebar from "../components/Sidebar";
 import type { habit } from "../types/auth.types";
 import { Plus, X } from "lucide-react";
 import { getHabits, postHabits } from "../api/habitsApi";
+import { useAuth } from "../context/AuthContext";
 
 const INITIAL_HABIT_STATE = {
     name: "",
@@ -14,6 +15,9 @@ const INITIAL_HABIT_STATE = {
 };
 
 export default function HabitPage() {
+
+    const { token } = useAuth()
+
     const [habits, setHabits] = useState<habit[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newHabit, setNewHabit] = useState(INITIAL_HABIT_STATE);
@@ -49,7 +53,7 @@ export default function HabitPage() {
 
     useEffect(() => {
         getAllHabits();
-    }, [])
+    }, [token])
 
     return (
         <div className="flex min-h-screen bg-background">
