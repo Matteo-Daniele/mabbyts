@@ -3,7 +3,7 @@ import ShowHabits from "../components/ShowHabits";
 import Sidebar from "../components/Sidebar";
 import type { habit } from "../types/auth.types";
 import { Plus, X } from "lucide-react";
-import { getHabits, postHabits } from "../api/habitsApi";
+import { deleteHabit, getHabits, postHabits } from "../api/habitsApi";
 import { useAuth } from "../context/AuthContext";
 
 const INITIAL_HABIT_STATE = {
@@ -51,6 +51,11 @@ export default function HabitPage() {
         }
     }
 
+    const onDelete = (habito: habit) => {
+        setHabits(habits?.filter((h) => h._id !== habito._id));
+        deleteHabit(habito._id)
+    }
+
     useEffect(() => {
         getAllHabits();
     }, [token])
@@ -67,14 +72,14 @@ export default function HabitPage() {
                             setIsModalOpen(true);
                             setNewHabit(INITIAL_HABIT_STATE);
                         }}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-mabbyts-brown to-mabbyts-dark text-white font-medium rounded-xl shadow-lg shadow-mabbyts-brown/30 hover:scale-105 active:scale-95 transition-all"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-linear-to-r from-mabbyts-brown to-mabbyts-dark text-white font-medium rounded-xl shadow-lg shadow-mabbyts-brown/30 hover:scale-105 active:scale-95 transition-all"
                     >
                         <Plus className="w-5 h-5" />
                         Nuevo Hábito
                     </button>
                 </div>
 
-                <ShowHabits habitList={habits} />
+                <ShowHabits habitList={habits} onDelete={onDelete} />
             </main>
 
             {/* Create Habit Modal (UI Only) */}
