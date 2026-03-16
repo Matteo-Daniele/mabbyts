@@ -58,3 +58,16 @@ export async function updateHabit(habit: Partial<habit>) {
     }
     return response.json()
 }
+
+export async function deleteHabit(id: string) {
+    const response = await fetch(`${API_URL}/habits/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    })
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.message || "Error al borrar habito");
+    }
+}

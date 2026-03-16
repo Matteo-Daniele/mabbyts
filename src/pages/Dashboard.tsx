@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import {
     BarChart3,
-    TrendingUp,
 } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import ShowHabits from "../components/ShowHabits";

@@ -8,11 +8,20 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import type { habit } from "../types/auth.types";
-export default function ShowHabits({ habitList }: { habitList?: habit[] }) {
+import { EditHabit } from "./EditHabit";
+
+interface ShowHabitsProps {
+    habitList?: habit[];
+    onDelete?: (habito: habit) => void;
+}
+
+export default function ShowHabits({ habitList, onDelete }: ShowHabitsProps) {
 
     const [completados, setCompletados] = useState<string[]>([]);
 
-    const habitos = habitList;
+    const [isEditOpen, setIsEditOpen] = useState(false);
+
+    let habitos = habitList;
 
     const toggleHabito = (id: string) => {
         setCompletados((prev) =>
@@ -21,6 +30,17 @@ export default function ShowHabits({ habitList }: { habitList?: habit[] }) {
     };
 
     const progreso = habitos?.length ? Math.round((completados.length / habitos.length) * 100) : 0;
+
+    const deleteHabit = (habito: habit) => {
+        if (onDelete) {
+            onDelete(habito);
+            setCompletados((prev) => prev.filter((prev) => prev !== habito._id));
+        }
+    }
+
+    const editPopUp = () => {
+        setIsEditOpen(!isEditOpen);
+    }
 
     return (
         <>
@@ -56,68 +76,78 @@ export default function ShowHabits({ habitList }: { habitList?: habit[] }) {
                         return (
                             <div
                                 key={habito._id}
-                                onClick={() => toggleHabito(habito._id)}
-                                className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 cursor-pointer text-left ${completado
-                                    ? "bg-mabbyts-cream/60 border-mabbyts-tan/30 shadow-none"
-                                    : "bg-white/80 border-mabbyts-tan/20 shadow-sm hover:shadow-md hover:border-mabbyts-tan/40"
-                                    }`}
+                                className="flex flex-row"
                             >
-                                {/* Ícono del check */}
+                                {isEditOpen && (
+                                    <EditHabit habit={habito} onClose={editPopUp} />
+                                )}
                                 <div
-                                    className={`shrink-0 transition-all duration-300 ${completado ? "text-mabbyts-caramel scale-110" : "text-mabbyts-tan/40"
+
+                                    onClick={() => toggleHabito(habito._id)}
+                                    className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 cursor-pointer text-left ${completado
+                                        ? "bg-mabbyts-cream/60 border-mabbyts-tan/30 shadow-none"
+                                        : "bg-white/80 border-mabbyts-tan/20 shadow-sm hover:shadow-md hover:border-mabbyts-tan/40"
                                         }`}
                                 >
-                                    {completado ? (
-                                        <CheckCircle2 className="w-6 h-6" />
-                                    ) : (
-                                        <Circle className="w-6 h-6" />
+                                    {/* Ícono del check */}
+                                    <div
+                                        className={`shrink-0 transition-all duration-300 ${completado ? "text-mabbyts-caramel scale-110" : "text-mabbyts-tan/40"
+                                            }`}
+                                    >
+                                        {completado ? (
+                                            <CheckCircle2 className="w-6 h-6" />
+                                        ) : (
+                                            <Circle className="w-6 h-6" />
+                                        )}
+                                    </div>
+
+                                    {/* Info del hábito */}
+                                    <div className="flex-1 min-w-0">
+                                        <p
+                                            className={`font-medium transition-all duration-300 ${completado
+                                                ? "text-mabbyts-brown/40 line-through"
+                                                : "text-mabbyts-dark"
+                                                }`}
+                                        >
+                                            {habito.name}
+                                        </p>
+                                        <p
+                                            className={`text-sm mt-0.5 transition-all duration-300 ${completado
+                                                ? "text-mabbyts-brown/50"
+                                                : "text-mabbyts-brown"
+                                                }`}
+                                        >
+                                            {habito.objective}
+                                        </p>
+                                        <p
+                                            className={`text-xs mt-0.5 transition-all duration-300 ${completado
+                                                ? "text-mabbyts-brown/25"
+                                                : "text-mabbyts-brown/50"
+                                                }`}
+                                        >
+                                            {habito.description}
+                                        </p>
+                                    </div>
+
+                                    {/* Badge de completado */}
+                                    {completado && (
+                                        <span className="text-xs font-semibold text-mabbyts-caramel bg-mabbyts-caramel/10 px-3 py-1 rounded-full">
+                                            ¡Hecho!
+                                        </span>
                                     )}
+                                    {/* Botones Edit y Delete */}
                                 </div>
-
-                                {/* Info del hábito */}
-                                <div className="flex-1 min-w-0">
-                                    <p
-                                        className={`font-medium transition-all duration-300 ${completado
-                                            ? "text-mabbyts-brown/40 line-through"
-                                            : "text-mabbyts-dark"
-                                            }`}
-                                    >
-                                        {habito.name}
-                                    </p>
-                                    <p
-                                        className={`text-sm mt-0.5 transition-all duration-300 ${completado
-                                            ? "text-mabbyts-brown/50"
-                                            : "text-mabbyts-brown"
-                                            }`}
-                                    >
-                                        {habito.objective}
-                                    </p>
-                                    <p
-                                        className={`text-xs mt-0.5 transition-all duration-300 ${completado
-                                            ? "text-mabbyts-brown/25"
-                                            : "text-mabbyts-brown/50"
-                                            }`}
-                                    >
-                                        {habito.description}
-                                    </p>
-                                </div>
-
-                                {/* Badge de completado */}
-                                {completado && (
-                                    <span className="text-xs font-semibold text-mabbyts-caramel bg-mabbyts-caramel/10 px-3 py-1 rounded-full">
-                                        ¡Hecho!
-                                    </span>
-                                )}
-                                {/* Botones Edit y Delete */}
                                 <div className="flex items-center gap-1 shrink-0 ml-2">
                                     <button
-                                        onClick={(e) => e.stopPropagation()}
+                                        onClick={editPopUp}
                                         className="p-2 text-mabbyts-brown/50 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
                                     >
                                         <Pencil className="w-5 h-5" />
                                     </button>
                                     <button
-                                        onClick={(e) => e.stopPropagation()}
+                                        onClick={() => {
+                                            deleteHabit(habito)
+                                        }}
                                         className="p-2 text-mabbyts-brown/50 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                                     >
                                         <Trash2 className="w-5 h-5" />

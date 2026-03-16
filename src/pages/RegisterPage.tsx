@@ -44,7 +44,7 @@ export default function RegisterPage() {
     }
 
     return (
-        <div className="min-h-screen min-w-screen bg-gradient-to-br from-mabbyts-cream via-background to-white flex items-center justify-center p-4">
+        <div className="min-h-screen min-w-screen bg-linear-to-br from-mabbyts-cream via-background to-white flex items-center justify-center p-4">
             {/* Decorative background elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-20 left-10 w-72 h-72 bg-mabbyts-tan/20 rounded-full blur-3xl" />
@@ -62,7 +62,7 @@ export default function RegisterPage() {
                             <img
                                 src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Gemini_Generated_Image_7erze77erze77erz-4EZOI7L0OGQOMftw59UYNyO8jQYQpS.png"
                                 alt="Mabbyts Software Solutions"
-                                className="relative w-24 h-24 object-contain drop-shadow-lg [mask-image:radial-gradient(ellipse_100%_100%_at_50%_50%,#000_10%,transparent_60%)]"
+                                className="relative w-24 h-24 object-contain drop-shadow-lg mask-[radial-gradient(ellipse_100%_100%_at_50%_50%,#000_10%,transparent_60%)]"
                             />
                         </div>
                         <h1 className="mt-4 text-2xl font-bold text-mabbyts-dark">
@@ -193,7 +193,7 @@ export default function RegisterPage() {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full py-3.5 px-4 bg-gradient-to-r from-mabbyts-brown to-mabbyts-dark text-white font-semibold rounded-xl shadow-lg shadow-mabbyts-brown/25 hover:shadow-xl hover:shadow-mabbyts-brown/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 mt-6"
+                            className="w-full py-3.5 px-4 bg-linear-to-r from-mabbyts-brown to-mabbyts-dark text-white font-semibold rounded-xl shadow-lg shadow-mabbyts-brown/25 hover:shadow-xl hover:shadow-mabbyts-brown/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 mt-6"
                         >
                             {isLoading ? (
                                 <>
