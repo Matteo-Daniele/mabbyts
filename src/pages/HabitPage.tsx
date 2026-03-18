@@ -3,7 +3,7 @@ import ShowHabits from "../components/ShowHabits";
 import Sidebar from "../components/Sidebar";
 import type { habit } from "../types/auth.types";
 import { Plus, X } from "lucide-react";
-import { deleteHabit, getHabits, postHabits } from "../api/habitsApi";
+import { deleteHabit, getHabits, postHabits, updateHabit } from "../api/habitsApi";
 import { useAuth } from "../context/AuthContext";
 
 const INITIAL_HABIT_STATE = {
@@ -56,6 +56,17 @@ export default function HabitPage() {
         deleteHabit(habito._id)
     }
 
+    const onEdit = async (updated: habit) => {
+        const previous = habits;
+        setHabits((prev) => prev.map((h) => h._id === updated._id ? updated : h));
+        try {
+            await updateHabit(updated);
+        } catch (error) {
+            setHabits(previous);
+            console.error("error al editar el habito", error);
+        }
+    }
+
     useEffect(() => {
         getAllHabits();
     }, [token])
@@ -79,7 +90,7 @@ export default function HabitPage() {
                     </button>
                 </div>
 
-                <ShowHabits habitList={habits} onDelete={onDelete} />
+                <ShowHabits habitList={habits} onDelete={onDelete} onEdit={onEdit} />
             </main>
 
             {/* Create Habit Modal (UI Only) */}
