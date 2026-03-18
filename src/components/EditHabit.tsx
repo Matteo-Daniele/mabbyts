@@ -1,12 +1,24 @@
+import { useState } from "react";
 import { X } from "lucide-react";
 import type { habit } from "../types/auth.types";
 
 interface EditHabitProps {
     habit: habit;
     onClose: () => void;
+    onSave: (updated: habit) => void;
 }
 
-export function EditHabit({ habit, onClose }: EditHabitProps) {
+export function EditHabit({ habit, onClose, onSave }: EditHabitProps) {
+    const [editedHabit, setEditedHabit] = useState<habit>({ ...habit });
+
+    const handleChange = (field: keyof Omit<habit, "_id">, value: string) => {
+        setEditedHabit((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const handleSubmit = () => {
+        onSave(editedHabit);
+    };
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-mabbyts-dark/40 backdrop-blur-sm transition-opacity">
             <div className="bg-white/95 backdrop-blur-md w-full max-w-md rounded-2xl shadow-2xl border border-mabbyts-cream overflow-hidden">
@@ -28,7 +40,8 @@ export function EditHabit({ habit, onClose }: EditHabitProps) {
                         <input
                             id="edit-habit-name"
                             type="text"
-                            defaultValue={habit.name}
+                            value={editedHabit.name}
+                            onChange={(e) => handleChange("name", e.target.value)}
                             placeholder="Ej: Meditar"
                             className="w-full px-4 py-2.5 bg-mabbyts-cream/30 border border-mabbyts-tan/30 rounded-xl text-mabbyts-dark placeholder:text-mabbyts-brown/40 focus:outline-none focus:ring-2 focus:ring-mabbyts-caramel"
                         />
@@ -38,7 +51,8 @@ export function EditHabit({ habit, onClose }: EditHabitProps) {
                         <label htmlFor="edit-habit-description" className="block text-sm font-medium text-mabbyts-dark">Descripción</label>
                         <textarea
                             id="edit-habit-description"
-                            defaultValue={habit.description}
+                            value={editedHabit.description}
+                            onChange={(e) => handleChange("description", e.target.value)}
                             placeholder="Ej: Meditar todas las mañanas"
                             rows={2}
                             className="w-full px-4 py-2.5 bg-mabbyts-cream/30 border border-mabbyts-tan/30 rounded-xl text-mabbyts-dark placeholder:text-mabbyts-brown/40 focus:outline-none focus:ring-2 focus:ring-mabbyts-caramel resize-none"
@@ -50,7 +64,8 @@ export function EditHabit({ habit, onClose }: EditHabitProps) {
                             <label htmlFor="edit-habit-frequency" className="block text-sm font-medium text-mabbyts-dark">Frecuencia</label>
                             <select
                                 id="edit-habit-frequency"
-                                defaultValue={habit.frequency}
+                                value={editedHabit.frequency}
+                                onChange={(e) => handleChange("frequency", e.target.value)}
                                 className="w-full px-4 py-2.5 bg-mabbyts-cream/30 border border-mabbyts-tan/30 rounded-xl text-mabbyts-dark focus:outline-none focus:ring-2 focus:ring-mabbyts-caramel appearance-none"
                             >
                                 <option value="daily">Diario</option>
@@ -62,7 +77,8 @@ export function EditHabit({ habit, onClose }: EditHabitProps) {
                             <label htmlFor="edit-habit-category" className="block text-sm font-medium text-mabbyts-dark">Tipo / Categoría</label>
                             <select
                                 id="edit-habit-category"
-                                defaultValue={habit.category}
+                                value={editedHabit.category}
+                                onChange={(e) => handleChange("category", e.target.value)}
                                 className="w-full px-4 py-2.5 bg-mabbyts-cream/30 border border-mabbyts-tan/30 rounded-xl text-mabbyts-dark focus:outline-none focus:ring-2 focus:ring-mabbyts-caramel appearance-none"
                             >
                                 <option value="salud">Salud</option>
@@ -78,7 +94,8 @@ export function EditHabit({ habit, onClose }: EditHabitProps) {
                         <input
                             id="edit-habit-objective"
                             type="text"
-                            defaultValue={habit.objective}
+                            value={editedHabit.objective}
+                            onChange={(e) => handleChange("objective", e.target.value)}
                             placeholder="Ej: 10 minutos al día"
                             className="w-full px-4 py-2.5 bg-mabbyts-cream/30 border border-mabbyts-tan/30 rounded-xl text-mabbyts-dark placeholder:text-mabbyts-brown/40 focus:outline-none focus:ring-2 focus:ring-mabbyts-caramel"
                         />
@@ -94,7 +111,8 @@ export function EditHabit({ habit, onClose }: EditHabitProps) {
                         Cancelar
                     </button>
                     <button
-                        className="px-5 py-2.5 bg-mabbyts-caramel hover:bg-mabbyts-brown text-white font-medium rounded-xl shadow-md transition-colors"
+                        onClick={handleSubmit}
+                        className="px-5 py-2.5 bg-mabbyts-caramel hover:bg-mabbyts-brown text-white font-medium rounded-xl shadow-md transition-colors cursor-pointer"
                     >
                         Guardar Cambios
                     </button>

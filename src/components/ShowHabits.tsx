@@ -13,13 +13,14 @@ import { EditHabit } from "./EditHabit";
 interface ShowHabitsProps {
     habitList?: habit[];
     onDelete?: (habito: habit) => void;
+    onEdit?: (updated: habit) => void;
 }
 
-export default function ShowHabits({ habitList, onDelete }: ShowHabitsProps) {
+export default function ShowHabits({ habitList, onDelete, onEdit }: ShowHabitsProps) {
 
     const [completados, setCompletados] = useState<string[]>([]);
 
-    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [editingHabit, setEditingHabit] = useState<habit | null>(null);
 
     let habitos = habitList;
 
@@ -38,8 +39,9 @@ export default function ShowHabits({ habitList, onDelete }: ShowHabitsProps) {
         }
     }
 
-    const editPopUp = () => {
-        setIsEditOpen(!isEditOpen);
+    const handleSave = (updated: habit) => {
+        if (onEdit) onEdit(updated);
+        setEditingHabit(null);
     }
 
     return (
@@ -78,8 +80,8 @@ export default function ShowHabits({ habitList, onDelete }: ShowHabitsProps) {
                                 key={habito._id}
                                 className="flex flex-row"
                             >
-                                {isEditOpen && (
-                                    <EditHabit habit={habito} onClose={editPopUp} />
+                                {editingHabit?._id === habito._id && (
+                                    <EditHabit habit={habito} onClose={() => setEditingHabit(null)} onSave={handleSave} />
                                 )}
                                 <div
 
@@ -139,7 +141,7 @@ export default function ShowHabits({ habitList, onDelete }: ShowHabitsProps) {
                                 </div>
                                 <div className="flex items-center gap-1 shrink-0 ml-2">
                                     <button
-                                        onClick={editPopUp}
+                                        onClick={() => setEditingHabit(habito)}
                                         className="p-2 text-mabbyts-brown/50 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
                                     >
                                         <Pencil className="w-5 h-5" />
