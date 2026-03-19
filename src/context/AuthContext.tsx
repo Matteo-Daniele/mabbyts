@@ -36,6 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     setActiveUser(userProfile);
                 } catch (error) {
                     console.error("error fetching user profile:", error);
+                    logout();
                 }
             }
             setLoading(false);
