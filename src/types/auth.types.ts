@@ -42,3 +42,11 @@ export interface habit {
     objective: string;
     category: string;
 }
+
+export interface habitHistory {
+    _id: string;
+    habitId: string;
+    userId: string;
+    isCompleted: boolean;
+    dateTime: Date;
+}
