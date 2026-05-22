@@ -9,35 +9,13 @@ import {
 import { useState } from "react";
 import type { habit } from "../types/auth.types";
 import { EditHabit } from "./EditHabit";
+import { useHabits } from "../context/HabitContext";
 
-interface ShowHabitsProps {
-    habitList?: habit[];
-    onDelete?: (habito: habit) => void;
-    onEdit?: (updated: habit) => void;
-}
+export default function ShowHabits() {
 
-export default function ShowHabits({ habitList, onDelete, onEdit }: ShowHabitsProps) {
-
-    const [completados, setCompletados] = useState<string[]>([]);
+    const { habits, completados, progreso, toggleHabito, onDelete, onEdit } = useHabits()
 
     const [editingHabit, setEditingHabit] = useState<habit | null>(null);
-
-    let habitos = habitList;
-
-    const toggleHabito = (id: string) => {
-        setCompletados((prev) =>
-            prev.includes(id) ? prev.filter((h) => h !== id) : [...prev, id]
-        );
-    };
-
-    const progreso = habitos?.length ? Math.round((completados.length / habitos.length) * 100) : 0;
-
-    const deleteHabit = (habito: habit) => {
-        if (onDelete) {
-            onDelete(habito);
-            setCompletados((prev) => prev.filter((prev) => prev !== habito._id));
-        }
-    }
 
     const handleSave = (updated: habit) => {
         if (onEdit) onEdit(updated);
@@ -56,7 +34,7 @@ export default function ShowHabits({ habitList, onDelete, onEdit }: ShowHabitsPr
                         </span>
                     </div>
                     <span className="text-sm font-bold text-mabbyts-caramel">
-                        {completados.length}/{habitos?.length} completados
+                        {completados.length}/{habits?.length} completados
                     </span>
                 </div>
                 <div className="w-full h-3 bg-mabbyts-cream rounded-full overflow-hidden">
@@ -73,7 +51,7 @@ export default function ShowHabits({ habitList, onDelete, onEdit }: ShowHabitsPr
                 </h3>
 
                 <div className="space-y-3">
-                    {habitos?.map((habito) => {
+                    {habits?.map((habito) => {
                         const completado = completados.includes(habito._id);
                         return (
                             <div
@@ -148,7 +126,7 @@ export default function ShowHabits({ habitList, onDelete, onEdit }: ShowHabitsPr
                                     </button>
                                     <button
                                         onClick={() => {
-                                            deleteHabit(habito)
+                                            onDelete(habito)
                                         }}
                                         className="p-2 text-mabbyts-brown/50 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                                     >
