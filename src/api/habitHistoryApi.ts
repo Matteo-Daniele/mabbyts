@@ -30,7 +30,7 @@ export async function toggleHabitHistory(
     const activeUser = await getActiveUser(savedToken);
     const userId = activeUser._id;
 
-    const response = await fetch(`${API_URL}/habit-history`, {
+    const response = await fetch(`${API_URL}/habit-history/today/${habitId}`, {
         method: "PATH",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ habitId, userId, isCompleted }),
