@@ -4,6 +4,7 @@ import {
 } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import ShowHabits from "../components/ShowHabits";
+import ProgressBar from "../components/ProgressBar";
 
 // ── Hábitos hardcodeados ────────────────────────────────────────
 
@@ -123,15 +124,7 @@ export function Dashboard() {
                         </p>
 
                         {/* Barra de progreso decorativa */}
-                        <div className="mt-4 w-48 h-1 bg-mabbyts-tan/15 rounded-full overflow-hidden">
-                            <div
-                                className="h-full rounded-full bg-linear-to-r from-mabbyts-tan via-mabbyts-caramel to-mabbyts-tan"
-                                style={{
-                                    animation: 'splash-shimmer 1.5s ease-in-out infinite',
-                                    width: '60%',
-                                }}
-                            />
-                        </div>
+                        <ProgressBar></ProgressBar>
                     </div>
                 </div>
             )}

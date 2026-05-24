@@ -6,6 +6,7 @@ import { Dashboard } from './pages/Dashboard'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import HabitPage from './pages/HabitPage'
+import { HabitProvider } from './context/HabitContext'
 
 function App() {
 
@@ -14,35 +15,38 @@ function App() {
 
       <AuthProvider>
 
-        <Routes>
+        <HabitProvider>
+          <Routes>
 
-          <Route path='/login' element={<LoginPage />}></Route>
+            <Route path='/login' element={<LoginPage />}></Route>
 
-          <Route path='/dashboard' element={
+            <Route path='/dashboard' element={
 
-            <ProtectedRoute>
+              <ProtectedRoute>
 
-              <Dashboard />
+                <Dashboard />
 
-            </ProtectedRoute>
+              </ProtectedRoute>
 
-          }></Route>
+            }></Route>
 
-          <Route path='/habits' element={
+            <Route path='/habits' element={
 
-            <ProtectedRoute>
+              <ProtectedRoute>
 
-              <HabitPage />
+                <HabitPage />
 
-            </ProtectedRoute>
+              </ProtectedRoute>
 
-          }></Route>
+            }></Route>
 
-          <Route path='/register' element={<RegisterPage />}></Route>
+            <Route path='/register' element={<RegisterPage />}></Route>
 
-          <Route path='*' element={<Navigate to="/login" replace />}></Route>
+            <Route path='*' element={<Navigate to="/login" replace />}></Route>
 
-        </Routes>
+          </Routes>
+        </HabitProvider>
+
 
       </AuthProvider>
 
