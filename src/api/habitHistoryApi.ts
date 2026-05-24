@@ -8,7 +8,7 @@ export async function getTodayHistory(): Promise<habitHistory[]> {
     const activeUser = await getActiveUser(savedToken);
     const userId = activeUser._id;
 
-    const response = await fetch(`${API_URL}/habit-history/today/${userId}`, {
+    const response = await fetch(`${API_URL}/habit-history/today`, {
         method: "GET",
         headers: {
             'Content-Type': 'application/json'
@@ -27,13 +27,14 @@ export async function toggleHabitHistory(
 ): Promise<habitHistory> {
 
     const savedToken = localStorage.getItem("token");
-    const activeUser = await getActiveUser(savedToken);
-    const userId = activeUser._id;
 
     const response = await fetch(`${API_URL}/habit-history/today/${habitId}`, {
-        method: "PATH",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ habitId, userId, isCompleted }),
+        method: "PATCH",
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${savedToken}`
+        },
+        body: JSON.stringify({ isCompleted }),
     });
 
     if (!response.ok) {
