@@ -17,11 +17,22 @@ export default function ProgressBar() {
                     {completados.length}/{habits?.length} completados
                 </span>
             </div>
-            <div className="w-full h-3 bg-mabbyts-cream rounded-full overflow-hidden">
-                <div
-                    className="h-full bg-linear-to-r from-mabbyts-caramel to-mabbyts-tan rounded-full transition-all duration-500 ease-out"
-                    style={{ width: `${progreso}%` }}
-                />
+            <div className="flex flex-row justify-center items-center">
+                <div className="w-full h-3 bg-mabbyts-cream rounded-full overflow-hidden">
+                    <div
+                        className="h-full bg-linear-to-r from-mabbyts-caramel to-mabbyts-tan rounded-full transition-all duration-500 ease-out"
+                        style={{ width: `${progreso}%` }}
+                    />
+
+                </div>
+                {progreso != 0 ? (
+                    <span className="ml-3 text-sm font-bold text-mabbyts-caramel">
+                        {progreso}%
+                    </span>
+                ) : (
+                    <></>
+                )
+                }
             </div>
         </div>
     )
