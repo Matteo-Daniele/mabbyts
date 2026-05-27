@@ -124,7 +124,7 @@ export function Dashboard() {
                         </p>
 
                         {/* Barra de progreso decorativa */}
-                        <ProgressBar></ProgressBar>
+
                     </div>
                 </div>
             )}

@@ -2,6 +2,7 @@ import {
     createContext,
     useContext,
     useEffect,
+    useRef,
     useState,
     type ReactNode,
 } from "react";
@@ -52,27 +53,74 @@ export function HabitProvider({ children }: { children: ReactNode }) {
         ? Math.round((completados.length / habits.length) * 100)
         : 0;
 
+    const lastLoadedDateRef = useRef<string>(new Date().toDateString());
+
+    const midnightTimeoutId = useRef<number>(0);
+
+    const loadData = async () => {
+        setLoadingHabits(true);
+        try {
+            const [allHabits, history] = await Promise.all([
+                getHabits(),
+                getTodayHistory(),
+            ]);
+            setHabits(allHabits);
+            setTodayHistory(history);
+
+            lastLoadedDateRef.current = new Date().toDateString();
+        } catch (error) {
+            console.error("Error al cargar datos:", error);
+        } finally {
+            setLoadingHabits(false);
+        }
+    };
+
     // ─── Cargar hábitos e historial al iniciar ────────────────
     useEffect(() => {
         if (!token) return;
 
-        const loadData = async () => {
-            setLoadingHabits(true);
-            try {
-                const [allHabits, history] = await Promise.all([
-                    getHabits(),
-                    getTodayHistory(),
-                ]);
-                setHabits(allHabits);
-                setTodayHistory(history);
-            } catch (error) {
-                console.error("Error al cargar datos:", error);
-            } finally {
-                setLoadingHabits(false);
-            }
-        };
-
         loadData();
+
+        const scheduleNextMidnigth = () => {
+            const now = new Date();
+            const nextMidnigth = new Date(now);
+            nextMidnigth.setHours(24, 0, 0, 0);
+
+            const msUntilMidnight = nextMidnigth.getTime() - now.getTime();
+
+            console.log(`Próxima actualización en: ${Math.round(msUntilMidnight / 1000)} segundos`);
+
+            midnightTimeoutId.current = setTimeout(() => {
+                console.log("¡Es medianoche exacta (00:00:00)! Reiniciando barra de progreso y hábitos...");
+
+                loadData()
+
+                scheduleNextMidnigth()
+            }, msUntilMidnight);
+        }
+
+        scheduleNextMidnigth();
+
+        const checkDayChange = () => {
+
+            if (document.visibilityState === "hidden") return
+            const todayStr = new Date().toDateString();
+            if (todayStr !== lastLoadedDateRef.current) {
+                console.log("Se detectó cambio de día al recuperar el foco. Sincronizando...");
+                loadData();
+            }
+        }
+
+        window.addEventListener("focus", checkDayChange);
+
+        document.addEventListener("visibilitychange", checkDayChange);
+
+        return () => {
+            clearTimeout(midnightTimeoutId)
+            window.removeEventListener("focus", checkDayChange);
+            document.removeEventListener("visibilitychange", checkDayChange);
+        }
+
     }, [token]);
 
     // ─── Toggle: marcar/desmarcar un hábito ──────────────────
