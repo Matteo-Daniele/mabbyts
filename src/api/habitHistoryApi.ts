@@ -1,17 +1,15 @@
 import type { habitHistory } from "../types/auth.types";
-import { getActiveUser } from "./userApi";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export async function getTodayHistory(): Promise<habitHistory[]> {
     const savedToken = localStorage.getItem("token");
-    const activeUser = await getActiveUser(savedToken);
-    const userId = activeUser._id;
 
     const response = await fetch(`${API_URL}/habit-history/today`, {
         method: "GET",
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${savedToken}`
         },
     })
 
