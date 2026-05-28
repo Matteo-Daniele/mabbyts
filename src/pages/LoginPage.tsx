@@ -28,8 +28,10 @@ export default function LoginPage() {
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
+        console.log(error);
       } else {
         setError('Ocurrio un error!');
+        console.log(error)
       }
     } finally {
       setIsLoading(false);
@@ -37,7 +39,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen min-w-screen bg-gradient-to-br from-mabbyts-cream via-background to-white flex items-center justify-center p-4">
+    <div className="min-h-screen min-w-screen bg-linear-to-br from-mabbyts-cream via-background to-white flex items-center justify-center p-4">
       {/* Decorative background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-mabbyts-tan/20 rounded-full blur-3xl" />

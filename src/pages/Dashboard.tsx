@@ -4,7 +4,6 @@ import {
 } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import ShowHabits from "../components/ShowHabits";
-import ProgressBar from "../components/ProgressBar";
 
 // ── Hábitos hardcodeados ────────────────────────────────────────
 
@@ -115,7 +114,7 @@ export function Dashboard() {
 
                         {/* Texto animado */}
                         <p
-                            className="mt-8 text-mabbyts-brown/70 text-sm font-semibold uppercase tracking-widest"
+                            className="text-mabbyts-brown/70 text-sm font-semibold uppercase tracking-widest"
                             style={{
                                 animation: 'splash-text-reveal 0.8s ease-out 0.3s both',
                             }}
@@ -137,7 +136,7 @@ export function Dashboard() {
                 {/* ══════════════════════════════════════════════════════
                 CONTENIDO PRINCIPAL
             ══════════════════════════════════════════════════════ */}
-                <main className="flex-1 ml-48 p-8 overflow-y-auto">
+                <main className="flex-1 md:ml-48 pt-24 pb-24 md:pt-8 md:pb-8 p-4 md:p-8 overflow-y-auto">
                     {/* Header */}
                     <div className="mb-8">
                         <h2 className="text-3xl font-bold text-mabbyts-dark">
