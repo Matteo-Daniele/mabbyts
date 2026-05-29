@@ -26,18 +26,20 @@ export default function HabitPage() {
     return (
         <div className="flex min-h-screen bg-background">
             <Sidebar />
-            <main className="flex-1 md:ml-48 pt-24 pb-24 md:pt-8 md:pb-8 p-4 md:p-8 overflow-y-auto">
-                <div className="flex items-center justify-between mb-8">
-                    <h1 className="text-3xl font-bold text-mabbyts-dark">Tus Hábitos</h1>
+            <main className="flex-1 pt-20 pb-24 md:pt-10 md:pb-10 p-4 md:p-10 overflow-y-auto">
+                <div className="max-w-5xl mx-auto flex items-center justify-between mb-8">
+                    <h1 className="text-3xl font-bold font-serif text-forest-dark">Tus Hábitos</h1>
                     <button
                         onClick={() => { setIsModalOpen(true); setNewHabit(INITIAL_HABIT_STATE); }}
-                        className="flex cursor-pointer items-center gap-2 px-5 py-2.5 bg-linear-to-r from-mabbyts-brown to-mabbyts-dark text-white font-medium rounded-xl shadow-lg shadow-mabbyts-brown/30 hover:scale-105 active:scale-95 transition-all"
+                        className="flex cursor-pointer items-center gap-2 px-5 py-2.5 bg-forest hover:bg-forest-light text-white font-semibold rounded-xl shadow-md shadow-forest/10 hover:scale-[1.02] active:scale-[0.98] transition-all"
                     >
                         <Plus className="w-5 h-5" />
                         Nuevo Hábito
                     </button>
                 </div>
-                <ShowHabits />  {/* Sin props — usa el contexto */}
+                <div className="max-w-5xl space-y-5 mx-auto">
+                    <ShowHabits />  {/* Sin props — usa el contexto */}
+                </div>
             </main>
             {/* Create Habit Modal */}
             {isModalOpen && (

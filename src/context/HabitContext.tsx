@@ -116,7 +116,7 @@ export function HabitProvider({ children }: { children: ReactNode }) {
         document.addEventListener("visibilitychange", checkDayChange);
 
         return () => {
-            clearTimeout(midnightTimeoutId)
+            clearTimeout(midnightTimeoutId.current)
             window.removeEventListener("focus", checkDayChange);
             document.removeEventListener("visibilitychange", checkDayChange);
         }

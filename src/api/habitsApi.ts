@@ -1,5 +1,6 @@
 import type { habit } from "../types/auth.types";
 import { getActiveUser } from "./userApi";
+import { fetchAuth } from "./fetchAuth";
 
 const API_URL = import.meta.env.VITE_API_URL
 
@@ -7,7 +8,7 @@ export async function getHabits() {
     const savedToken = localStorage.getItem('token');
     const activeUser = await getActiveUser(savedToken);
     const userId = activeUser._id;
-    const response = await fetch(`${API_URL}/habits/user/${userId}`, {
+    const response = await fetchAuth(`${API_URL}/habits/user/${userId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -30,7 +31,7 @@ export async function postHabits(habit: any) {
         ...habit, userId
     }
     console.log(habitSended);
-    const response = await fetch(`${API_URL}/habits`, {
+    const response = await fetchAuth(`${API_URL}/habits`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -45,7 +46,7 @@ export async function postHabits(habit: any) {
 }
 
 export async function updateHabit(habit: Partial<habit>) {
-    const response = await fetch(`${API_URL}/habits/${habit._id}`, {
+    const response = await fetchAuth(`${API_URL}/habits/${habit._id}`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
@@ -60,7 +61,7 @@ export async function updateHabit(habit: Partial<habit>) {
 }
 
 export async function deleteHabit(id: string) {
-    const response = await fetch(`${API_URL}/habits/${id}`, {
+    const response = await fetchAuth(`${API_URL}/habits/${id}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json'

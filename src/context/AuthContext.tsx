@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import type { LoginRequest, RegisterRequest, User } from "../types/auth.types";
 import { loginUser, registerUser } from "../api/authApi";
 import { getActiveUser } from "../api/userApi";
@@ -15,77 +15,118 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-    // Estado: el token JWT
-    const [token, setToken] = useState<string | null>(null);
-    // Estado: loading (mientras revisamos si hay token en localStorage)
-    const [loading, setLoading] = useState(true);
+// ─── JWT helper: decode exp claim (no library needed) ─────────────────────────
+function getTokenExpiry(token: string): number | null {
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.exp ? payload.exp * 1000 : null; // exp is in seconds → ms
+    } catch {
+        return null;
+    }
+}
 
+export function AuthProvider({ children }: { children: ReactNode }) {
+    const [token, setToken] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
     const [activeUser, setActiveUser] = useState<User | null>(null);
-    // ─── Al montar el componente, revisar si hay un token guardado ───
+
+    // Ref to hold the expiry timer so we can cancel it from anywhere
+    const expiryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    // ─── Logout ──────────────────────────────────────────────────────────────
+    const logout = () => {
+        if (expiryTimerRef.current) clearTimeout(expiryTimerRef.current);
+        setToken(null);
+        setActiveUser(null);
+        localStorage.removeItem('token');
+    };
+
+    // ─── Schedule auto-logout at the exact moment the JWT expires ────────────
+    const scheduleExpiry = (tkn: string) => {
+        if (expiryTimerRef.current) clearTimeout(expiryTimerRef.current);
+
+        const expiry = getTokenExpiry(tkn);
+        if (!expiry) return;
+
+        const ms = expiry - Date.now();
+        if (ms <= 0) { logout(); return; }
+
+        console.log(`Sesión activa. Token expira en ${Math.round(ms / 1000)}s.`);
+        expiryTimerRef.current = setTimeout(() => {
+            console.log('Token expirado — cerrando sesión automáticamente.');
+            logout();
+        }, ms);
+    };
+
+    // ─── Single mount effect ──────────────────────────────────────────────────
     useEffect(() => {
-        // useEffect se ejecuta UNA VEZ cuando el componente se monta.
-        // Acá revisamos si el usuario ya se había logueado antes
-        // (su token está guardado en localStorage).
-        const checkAuthStatus = async () => {
+        // 1. Listen for 401/403 from any API call (dispatched by fetchAuth)
+        const handleUnauthorized = () => {
+            console.log('Respuesta 401/403 — cerrando sesión automáticamente.');
+            logout();
+        };
+        window.addEventListener('auth:unauthorized', handleUnauthorized);
+
+        // 2. Restore existing session from localStorage
+        const init = async () => {
             const savedToken = localStorage.getItem('token');
             if (savedToken) {
-                setToken(savedToken);
-                try {
-                    const userProfile = await getActiveUser(savedToken)
-                    setActiveUser(userProfile);
-                } catch (error) {
-                    console.error("error fetching user profile:", error);
-                    logout();
+                const expiry = getTokenExpiry(savedToken);
+                if (expiry && expiry <= Date.now()) {
+                    // Already expired: discard silently
+                    localStorage.removeItem('token');
+                } else {
+                    setToken(savedToken);
+                    scheduleExpiry(savedToken);
+                    try {
+                        const userProfile = await getActiveUser(savedToken);
+                        setActiveUser(userProfile);
+                    } catch {
+                        logout();
+                    }
                 }
             }
             setLoading(false);
         };
 
-        checkAuthStatus();
-        // ↑ Ya terminamos de verificar, dejamos de mostrar "cargando..."
-    }, [token]);
-    // ↑ [] = array vacío de dependencias = se ejecuta solo al montar
-    // ─── Función de login ───
+        init();
 
+        // Cleanup: remove listener and cancel any pending timer
+        return () => {
+            window.removeEventListener('auth:unauthorized', handleUnauthorized);
+            if (expiryTimerRef.current) clearTimeout(expiryTimerRef.current);
+        };
+    }, []);
+
+    // ─── Login ────────────────────────────────────────────────────────────────
     const login = async (credentials: LoginRequest) => {
-        // 1. Llamamos al backend
         const response = await loginUser(credentials);
-        // ↑ Si falla (credenciales incorrectas), loginUser lanza un Error
-        //   que el componente LoginPage puede capturar con try/catch
         if (response) {
-            // 2. Guardamos el token en el estado de React
             setToken(response.access_token);
-            // 3. Guardamos el token en localStorage (para que persista al refrescar)
             localStorage.setItem('token', response.access_token);
+            scheduleExpiry(response.access_token);
+            try {
+                const userProfile = await getActiveUser(response.access_token);
+                setActiveUser(userProfile);
+            } catch (error) {
+                console.error("Error al obtener perfil tras login:", error);
+            }
         }
-    }
+    };
 
+    // ─── Register ─────────────────────────────────────────────────────────────
     const register = async (credentials: RegisterRequest) => {
         const response = await registerUser(credentials);
-
         if (!response) {
             throw new Error('Error al registrar el usuario');
-        } else {
-            console.log(response)
         }
-    }
-
-    const logout = () => {
-        // 1. Limpiamos el estado
-        setToken(null);
-        // 2. Borramos el token de localStorage
-        localStorage.removeItem('token');
-    }
-
-    // ─── Proveemos los datos a toda la app ───
+    };
 
     return (
         <AuthContext.Provider
             value={{
                 token,
                 isAuthenticated: token !== null,
-                // ↑ Si hay token, está autenticado. Simple.
                 login,
                 register,
                 activeUser,
@@ -94,28 +135,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }}
         >
             {children}
-            {/* ↑ children = todos los componentes hijos (toda la app) */}
         </AuthContext.Provider>
-    )
+    );
 }
 
-// --------------------------------------------------
-// 4. HOOK PERSONALIZADO PARA USAR EL CONTEXTO
-// --------------------------------------------------
-// En vez de escribir useContext(AuthContext) en cada componente,
-// creamos un hook useAuth() que:
-// 1. Llama a useContext por vos
-// 2. Verifica que estés dentro del Provider (si no, lanza un error claro)
-
+// ─── Hook ─────────────────────────────────────────────────────────────────────
 export function useAuth(): AuthContextType {
     const context = useContext(AuthContext);
     if (!context) {
-        throw new Error('useAuth debe usarse dentro de un AuthProvider')
-        // ↑ Esto pasa si alguien usa useAuth() sin haber envuelto
-        //   la app con <AuthProvider>. Es un error del desarrollador.
+        throw new Error('useAuth debe usarse dentro de un AuthProvider');
     }
     return context;
 }
-
-
-

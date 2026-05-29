@@ -1,20 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 @import "tailwindcss";
 
 @theme {
-    /* Colores de Mabbyts - tonos marrones, caramelo y crema */
-    --color-mabbyts-cream: #FDF6E9;
-    --color-mabbyts-tan: #C9A86C;
-    --color-mabbyts-caramel: #B8860B;
-    --color-mabbyts-brown: #8B6914;
-    --color-mabbyts-dark: #5D4E37;
+    /* ── Paper (fondo base) ─────────────────────────────── */
+    --color-paper:       #FAF8F4;   /* fondo principal       */
+    --color-paper-light: #FDFBF7;   /* tarjetas / elevado    */
+    --color-paper-dark:  #E8E3D9;   /* bordes / divisores    */
 
-    /* Colores base */
-    --color-background: #FFFDF8;
-    --color-foreground: #5D4E37;
-    --color-border: #E8DCC8;
+    /* ── Forest (acento verde) ─────────────────────────── */
+    --color-forest:       #2D5A3D;  /* acento principal      */
+    --color-forest-light: #3E7A53;  /* hover / variaciones   */
+    --color-forest-dark:  #1E3C29;  /* encabezados / sidebar */
 
-    /* Fuentes */
+    /* ── Charcoal (texto) ──────────────────────────────── */
+    --color-charcoal:       #2D2D2D; /* texto principal      */
+    --color-charcoal-light: #4A4A4A; /* texto secundario     */
+
+    /* ── Coral (racha / energía) ───────────────────────── */
+    --color-coral:       #E07A5F;
+    --color-coral-light: #E89B87;
+
+    /* ── Alias legacy → nuevos tokens (sin tocar los .tsx) */
+    --color-mabbyts-cream:    var(--color-paper);
+    --color-mabbyts-tan:      var(--color-forest-light);
+    --color-mabbyts-caramel:  var(--color-forest);
+    --color-mabbyts-brown:    var(--color-charcoal-light);
+    --color-mabbyts-dark:     var(--color-forest-dark);
+
+    /* ── Base ──────────────────────────────────────────── */
+    --color-background: var(--color-paper);
+    --color-foreground: var(--color-charcoal);
+    --color-border:     var(--color-paper-dark);
+
+    /* ── Fuentes ───────────────────────────────────────── */
     --font-sans: 'Inter', system-ui, sans-serif;
+    --font-serif: 'Lora', Georgia, serif;
 }
 
 * {
@@ -36,12 +56,12 @@ body {
     0%,
     100% {
         transform: scale(1) translateY(0);
-        filter: drop-shadow(0 0 20px rgba(201, 168, 108, 0.3));
+        filter: drop-shadow(0 0 20px rgba(45, 90, 61, 0.3));
     }
 
     50% {
         transform: scale(1.06) translateY(-8px);
-        filter: drop-shadow(0 20px 40px rgba(201, 168, 108, 0.5));
+        filter: drop-shadow(0 20px 40px rgba(45, 90, 61, 0.5));
     }
 }
 
@@ -91,15 +111,15 @@ body {
     0%,
     100% {
         box-shadow:
-            0 0 30px rgba(201, 168, 108, 0.2),
-            0 0 60px rgba(201, 168, 108, 0.1);
+            0 0 30px rgba(45, 90, 61, 0.2),
+            0 0 60px rgba(45, 90, 61, 0.1);
     }
 
     50% {
         box-shadow:
-            0 0 50px rgba(201, 168, 108, 0.4),
-            0 0 100px rgba(201, 168, 108, 0.2),
-            0 0 150px rgba(201, 168, 108, 0.1);
+            0 0 50px rgba(45, 90, 61, 0.4),
+            0 0 100px rgba(45, 90, 61, 0.2),
+            0 0 150px rgba(45, 90, 61, 0.1);
     }
 }
 
