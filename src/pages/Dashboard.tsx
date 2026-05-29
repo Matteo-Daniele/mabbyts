@@ -1,15 +1,83 @@
 import { useState, useEffect, useRef } from "react";
 import {
-    BarChart3,
+    Flame, Trophy, Target, Calendar,
+    CheckCircle2, Circle,
+    Heart, Dumbbell, BookOpen, Briefcase, Sparkles, Droplets, Footprints, PenLine,
 } from "lucide-react";
 import Sidebar from "../components/Sidebar";
+import { useHabits } from "../context/HabitContext";
+import type { habit } from "../types/auth.types";
+import ProgressBar from "../components/ProgressBar";
 import ShowHabits from "../components/ShowHabits";
 
-// ── Hábitos hardcodeados ────────────────────────────────────────
+// ── Mapa categoría → icono ──────────────────────────────────────────
+const CATEGORY_ICONS: Record<string, React.ElementType> = {
+    'Salud': Heart,
+    'Deporte': Dumbbell,
+    'Aprendizaje': BookOpen,
+    'Productividad': Briefcase,
+    'Hidratación': Droplets,
+    'Pasos': Footprints,
+    'Diario': PenLine,
+};
 
+const getIcon = (habit: habit): React.ElementType =>
+    CATEGORY_ICONS[habit.category] ?? Sparkles;
+
+// ── Días de la semana para el gráfico ──────────────────────────────
+const DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+const PLACEHOLDER_BARS = [65, 80, 55, 90, 40, 70, 50];
+
+// ── Progreso circular SVG ───────────────────────────────────────────
+
+
+// ── Tarjeta de hábito para el dashboard ────────────────────────────
+function HabitRow({ habit, done, onToggle }: { habit: habit; done: boolean; onToggle: () => void }) {
+    const Icon = getIcon(habit);
+    return (
+        <button
+            onClick={onToggle}
+            className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl border border-paper-dark bg-white hover:border-forest/20 hover:shadow-md transition-all duration-200 cursor-pointer text-left group"
+        >
+            {/* Icono de categoría */}
+            <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-paper transition-colors group-hover:bg-forest/5">
+                <Icon className="w-5 h-5 text-forest" />
+            </div>
+
+            {/* Información del hábito */}
+            <div className="flex-1 min-w-0">
+                <p className={`font-bold text-sm md:text-base leading-tight text-charcoal transition-all ${done ? 'opacity-50 line-through' : ''
+                    }`}>
+                    {habit.name}
+                </p>
+                {(habit.objective || habit.description) && (
+                    <p className={`text-xs mt-1 text-charcoal-light transition-all ${done ? 'opacity-40' : ''
+                        }`}>
+                        {habit.objective || habit.description}
+                    </p>
+                )}
+            </div>
+
+            {/* Checkbox circular */}
+            <div className="shrink-0 transition-all duration-200">
+                {done ? (
+                    <div className="w-6 h-6 rounded-full bg-forest flex items-center justify-center text-white scale-110 shadow-sm shadow-forest/10">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                ) : (
+                    <div className="w-6 h-6 rounded-full border border-charcoal/20 group-hover:border-charcoal/40 transition-colors" />
+                )}
+            </div>
+        </button>
+    );
+}
+
+// ═══════════════════════════════════════════════════════════════════
 export function Dashboard() {
 
-    // ── Splash transition ────────────────────────────────────────
+    // ── Splash transition ──────────────────────────────────────────
     const justLoggedIn = useRef(sessionStorage.getItem('justLoggedIn') === 'true');
     const [showSplash, setShowSplash] = useState(justLoggedIn.current);
     const [splashRevealing, setSplashRevealing] = useState(false);
@@ -17,159 +85,181 @@ export function Dashboard() {
     useEffect(() => {
         if (!justLoggedIn.current) return;
         sessionStorage.removeItem('justLoggedIn');
-        // Después de 1s mostrando el logo, empezar la apertura circular
         const revealTimer = setTimeout(() => setSplashRevealing(true), 1000);
-        // Después de 2s total, quitar el splash del DOM
         const removeTimer = setTimeout(() => setShowSplash(false), 2200);
-        return () => {
-            clearTimeout(revealTimer);
-            clearTimeout(removeTimer);
-        };
+        return () => { clearTimeout(revealTimer); clearTimeout(removeTimer); };
     }, []);
+
+    const { habits, completados, progreso, toggleHabito } = useHabits();
+
+    const dailyHabits = habits.filter(h => h.frequency === 'daily');
+    const weeklyHabits = habits.filter(h => h.frequency === 'weekly');
+    const recentDone = habits.filter(h => completados.includes(h._id)).slice(0, 4);
+
+    // Día actual para resaltar en el gráfico (0=Dom → convertimos a Lun-first)
+    const today = new Date().getDay();
+    const todayIdx = today === 0 ? 6 : today - 1;
+
+    const renderHabitSection = (list: habit[], title: string) =>
+        list.length > 0 ? (
+            <div>
+                <h3 className="text-forest-dark font-serif text-xl font-bold mb-4">{title}</h3>
+                <div className="space-y-3">
+                    {list.map(h => (
+                        <HabitRow
+                            key={h._id}
+                            habit={h}
+                            done={completados.includes(h._id)}
+                            onToggle={() => toggleHabito(h._id)}
+                        />
+                    ))}
+                </div>
+            </div>
+        ) : null;
 
     return (
         <>
-            {/* ══════════════════════════════════════════════════════
-                SPLASH TRANSITION
-            ══════════════════════════════════════════════════════ */}
+            {/* ══ SPLASH ══════════════════════════════════════════════ */}
             {showSplash && (
                 <div
                     className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden"
                     style={{
-                        background: 'linear-gradient(135deg, #FDF6E9 0%, #FFFDF8 30%, #F5ECD7 60%, #FDF6E9 100%)',
-                        clipPath: splashRevealing
-                            ? 'circle(0% at 50% 50%)'
-                            : 'circle(100% at 50% 50%)',
-                        transition: splashRevealing
-                            ? 'clip-path 1.2s cubic-bezier(0.4, 0, 0.2, 1)'
-                            : 'none',
+                        background: 'linear-gradient(135deg, #FAF8F4 0%, #FDFBF7 30%, #EEF4F0 60%, #FAF8F4 100%)',
+                        clipPath: splashRevealing ? 'circle(0% at 50% 50%)' : 'circle(100% at 50% 50%)',
+                        transition: splashRevealing ? 'clip-path 1.2s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
                     }}
                 >
-                    {/* Fondo con partículas flotantes */}
                     {[...Array(8)].map((_, i) => (
-                        <div
-                            key={i}
-                            className="absolute rounded-full"
-                            style={{
-                                width: `${6 + (i % 3) * 4}px`,
-                                height: `${6 + (i % 3) * 4}px`,
-                                background: `rgba(201, 168, 108, ${0.2 + (i % 4) * 0.1})`,
-                                left: `${12 + i * 11}%`,
-                                top: `${30 + (i % 3) * 20}%`,
-                                animation: `splash-particle-float ${2 + (i % 3) * 0.5}s ease-in-out ${i * 0.2}s infinite`,
-                            }}
-                        />
+                        <div key={i} className="absolute rounded-full" style={{
+                            width: `${6 + (i % 3) * 4}px`, height: `${6 + (i % 3) * 4}px`,
+                            background: `rgba(45, 90, 61, ${0.2 + (i % 4) * 0.1})`,
+                            left: `${12 + i * 11}%`, top: `${30 + (i % 3) * 20}%`,
+                            animation: `splash-particle-float ${2 + (i % 3) * 0.5}s ease-in-out ${i * 0.2}s infinite`,
+                        }} />
                     ))}
-
-                    {/* Contenedor del logo con anillos */}
                     <div className="relative flex flex-col items-center">
-                        {/* Anillo orbital exterior */}
-                        <div
-                            className="absolute w-72 h-72 rounded-full border border-mabbyts-tan/20"
-                            style={{
-                                top: '50%',
-                                left: '50%',
-                                animation: 'splash-ring-spin 8s linear infinite',
-                            }}
-                        >
-                            <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-mabbyts-caramel/40" />
-                            <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-mabbyts-tan/50" />
+                        <div className="absolute w-72 h-72 rounded-full border border-forest/20"
+                            style={{ top: '50%', left: '50%', animation: 'splash-ring-spin 8s linear infinite' }}>
+                            <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-forest/40" />
+                            <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-forest-light/50" />
                         </div>
-
-                        {/* Anillo orbital interior (dirección opuesta) */}
-                        <div
-                            className="absolute w-56 h-56 rounded-full border border-dashed border-mabbyts-caramel/15"
-                            style={{
-                                top: '50%',
-                                left: '50%',
-                                animation: 'splash-ring-spin-reverse 6s linear infinite',
-                            }}
-                        >
-                            <div className="absolute top-1/2 -right-1 -translate-y-1/2 w-2 h-2 rounded-full bg-mabbyts-caramel/50" />
+                        <div className="absolute w-56 h-56 rounded-full border border-dashed border-forest/15"
+                            style={{ top: '50%', left: '50%', animation: 'splash-ring-spin-reverse 6s linear infinite' }}>
+                            <div className="absolute top-1/2 -right-1 -translate-y-1/2 w-2 h-2 rounded-full bg-forest/50" />
                         </div>
-
-                        {/* Glow detrás del logo */}
-                        <div
-                            className="absolute w-44 h-44 rounded-full"
-                            style={{
-                                top: '50%',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                                background: 'radial-gradient(circle, rgba(201, 168, 108, 0.15) 0%, transparent 70%)',
-                                animation: 'splash-glow-pulse 2s ease-in-out infinite',
-                            }}
-                        />
-
-                        {/* Logo con shimmer */}
+                        <div className="absolute w-44 h-44 rounded-full" style={{
+                            top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                            background: 'radial-gradient(circle, rgba(45, 90, 61, 0.15) 0%, transparent 70%)',
+                            animation: 'splash-glow-pulse 2s ease-in-out infinite',
+                        }} />
                         <div className="relative overflow-hidden rounded-3xl" style={{ animation: 'splash-logo-float 2s ease-in-out infinite' }}>
-                            {/* Shimmer sweep */}
-                            <div
-                                className="absolute inset-0 z-20"
-                                style={{
-                                    background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
-                                    animation: 'splash-shimmer 2s ease-in-out infinite',
-                                }}
-                            />
+                            <div className="absolute inset-0 z-20" style={{
+                                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
+                                animation: 'splash-shimmer 2s ease-in-out infinite',
+                            }} />
                         </div>
-
-                        {/* Texto animado */}
-                        <p
-                            className="text-mabbyts-brown/70 text-sm font-semibold uppercase tracking-widest"
-                            style={{
-                                animation: 'splash-text-reveal 0.8s ease-out 0.3s both',
-                            }}
-                        >
+                        <p className="text-charcoal-light text-sm font-semibold uppercase tracking-widest"
+                            style={{ animation: 'splash-text-reveal 0.8s ease-out 0.3s both' }}>
                             Cargando...
                         </p>
-
-                        {/* Barra de progreso decorativa */}
-
                     </div>
                 </div>
             )}
 
+            {/* ══ LAYOUT PRINCIPAL ════════════════════════════════════ */}
             <div className="flex min-h-screen bg-background">
-                {/* ══════════════════════════════════════════════════════
-                SIDEBAR
-            ══════════════════════════════════════════════════════ */}
-                <Sidebar></Sidebar>
-                {/* ══════════════════════════════════════════════════════
-                CONTENIDO PRINCIPAL
-            ══════════════════════════════════════════════════════ */}
-                <main className="flex-1 md:ml-48 pt-24 pb-24 md:pt-8 md:pb-8 p-4 md:p-8 overflow-y-auto">
-                    {/* Header */}
-                    <div className="mb-8">
-                        <h2 className="text-3xl font-bold text-mabbyts-dark">
-                            ¡Buen día! 👋
-                        </h2>
-                        <p className="text-mabbyts-brown/60 mt-1">
-                            Acá están tus hábitos para hoy. ¡Vamos con todo!
-                        </p>
-                    </div>
+                <Sidebar />
 
-                    {/* ── Hábitos del día ── */}
+                <main className="flex-1 p-4 md:p-8 pt-20 pb-24 md:pt-10 md:pb-10 overflow-y-auto">
+                    <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5">
 
-                    <ShowHabits />
+                        {/* ── COLUMNA IZQUIERDA ──────────────────────── */}
+                        <div className="space-y-5">
+                            <ShowHabits></ShowHabits>
+                        </div>
 
-                    {/* ══════════════════════════════════════════════════
-                    ESTADÍSTICAS SEMANALES (placeholder)
-                ══════════════════════════════════════════════════ */}
-                    <div>
-                        <h3 className="text-lg font-bold text-mabbyts-dark mb-4 flex items-center gap-2">
-                            <BarChart3 className="w-5 h-5 text-mabbyts-caramel" />
-                            Estadísticas semanales
-                        </h3>
+                        {/* ── COLUMNA DERECHA ────────────────────────── */}
+                        <div className="space-y-5">
 
-                        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-dashed border-mabbyts-tan/30 p-12 flex flex-col items-center justify-center text-center">
-                            <div className="w-16 h-16 rounded-2xl bg-mabbyts-cream flex items-center justify-center mb-4">
-                                <BarChart3 className="w-8 h-8 text-mabbyts-tan/60" />
+                            {/* Gráfico de actividad semanal */}
+                            <div className="bg-white rounded-2xl p-5 border border-paper-dark shadow-sm">
+                                <h3 className="text-forest-dark font-serif text-lg font-bold mb-4">Actividad de la semana</h3>
+                                <div className="flex items-end justify-between gap-1.5 h-28">
+                                    {DAYS.map((day, i) => (
+                                        <div key={day} className="flex flex-col items-center gap-1.5 flex-1 h-full justify-end">
+                                            <div
+                                                className={`w-8 rounded-t-xl transition-all duration-500 ${i === todayIdx ? 'bg-forest' : 'bg-[#A3C1AD]'
+                                                    }`}
+                                                style={{ height: `${PLACEHOLDER_BARS[i]}%` }}
+                                            />
+                                            <span className={`text-[10px] font-semibold mt-1 ${i === todayIdx ? 'text-forest font-bold' : 'text-charcoal-light/60'
+                                                }`}>
+                                                {day}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                            <p className="text-mabbyts-brown/50 font-medium">
-                                Próximamente...
-                            </p>
-                            <p className="text-mabbyts-brown/30 text-sm mt-1">
-                                Acá van a ir tus estadísticas semanales
-                            </p>
+
+                            {/* Stats 2×2 */}
+                            <div className="grid grid-cols-2 gap-3">
+                                {/* Racha actual */}
+                                <div className="bg-white rounded-2xl p-4 border border-paper-dark shadow-sm">
+                                    <div className="w-9 h-9 rounded-full bg-[#FDF0EC] flex items-center justify-center mb-2.5">
+                                        <Flame className="w-5 h-5 text-coral fill-coral/10" />
+                                    </div>
+                                    <p className="text-2xl font-bold font-serif text-forest-dark leading-none mt-1">12 días</p>
+                                    <p className="text-charcoal-light/80 text-xs font-semibold mt-1">Racha actual</p>
+                                </div>
+                                {/* Mejor racha */}
+                                <div className="bg-white rounded-2xl p-4 border border-paper-dark shadow-sm">
+                                    <div className="w-9 h-9 rounded-full bg-[#FEF3C7] flex items-center justify-center mb-2.5">
+                                        <Trophy className="w-5 h-5 text-amber-500 fill-amber-500/10" />
+                                    </div>
+                                    <p className="text-2xl font-bold font-serif text-forest-dark leading-none mt-1">24 días</p>
+                                    <p className="text-charcoal-light/80 text-xs font-semibold mt-1">Mejor racha</p>
+                                </div>
+                                {/* Tasa completado */}
+                                <div className="bg-white rounded-2xl p-4 border border-paper-dark shadow-sm">
+                                    <div className="w-9 h-9 rounded-full bg-[#EEF4F0] flex items-center justify-center mb-2.5">
+                                        <Target className="w-5 h-5 text-forest fill-forest/10" />
+                                    </div>
+                                    <p className="text-2xl font-bold font-serif text-forest-dark leading-none mt-1">{progreso}%</p>
+                                    <p className="text-charcoal-light/80 text-xs font-semibold mt-1">Tasa completado</p>
+                                </div>
+                                {/* Total este mes */}
+                                <div className="bg-white rounded-2xl p-4 border border-paper-dark shadow-sm">
+                                    <div className="w-9 h-9 rounded-full bg-[#EFF6FF] flex items-center justify-center mb-2.5">
+                                        <Calendar className="w-5 h-5 text-blue-500 fill-blue-500/10" />
+                                    </div>
+                                    <p className="text-2xl font-bold font-serif text-forest-dark leading-none mt-1">148</p>
+                                    <p className="text-charcoal-light/80 text-xs font-semibold mt-1">Total este mes</p>
+                                </div>
+                            </div>
+
+                            {/* Completados recientemente */}
+                            {recentDone.length > 0 && (
+                                <div className="bg-white rounded-2xl p-5 border border-paper-dark shadow-sm">
+                                    <h3 className="text-forest-dark font-serif text-lg font-bold mb-5">Completados recientemente</h3>
+                                    <div className="relative pl-6 space-y-4">
+                                        {/* Línea vertical de la línea de tiempo */}
+                                        <div className="absolute left-[10px] top-3 bottom-3 w-[1.5px] bg-paper-dark" />
+
+                                        {recentDone.map((h, i) => (
+                                            <div key={h._id} className="relative flex items-center">
+                                                {/* Icono de la línea de tiempo */}
+                                                <div className="absolute -left-[19px] w-[10px] h-[10px] rounded-full bg-forest border-2 border-white shadow-xs shrink-0" />
+
+                                                {/* Tarjeta del hábito completado */}
+                                                <div className="flex-1 bg-paper-light border border-paper-dark/60 rounded-xl px-4 py-2.5 flex items-center justify-between gap-3 shadow-xs">
+                                                    <p className="text-sm font-semibold text-charcoal truncate">{h.name}</p>
+                                                    <span className="text-[11px] font-semibold text-charcoal-light/50 shrink-0">Hace {(i + 1) * 2}h</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </main>

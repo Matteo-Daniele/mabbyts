@@ -1,11 +1,12 @@
 import type { habitHistory } from "../types/auth.types";
+import { fetchAuth } from "./fetchAuth";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export async function getTodayHistory(): Promise<habitHistory[]> {
     const savedToken = localStorage.getItem("token");
 
-    const response = await fetch(`${API_URL}/habit-history/today`, {
+    const response = await fetchAuth(`${API_URL}/habit-history/today`, {
         method: "GET",
         headers: {
             'Content-Type': 'application/json',
@@ -26,7 +27,7 @@ export async function toggleHabitHistory(
 
     const savedToken = localStorage.getItem("token");
 
-    const response = await fetch(`${API_URL}/habit-history/today/${habitId}`, {
+    const response = await fetchAuth(`${API_URL}/habit-history/today/${habitId}`, {
         method: "PATCH",
         headers: {
             'Content-Type': 'application/json',
