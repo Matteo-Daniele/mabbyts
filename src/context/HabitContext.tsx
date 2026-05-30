@@ -16,6 +16,7 @@ import {
 import {
     getTodayHistory,
     toggleHabitHistory,
+    getStreak
 } from "../api/habitHistoryApi";
 import { useAuth } from "./AuthContext";
 
@@ -24,7 +25,8 @@ interface HabitContextType {
     habits: habit[];
     todayHistory: habitHistory[];
     completados: string[];      // IDs de hábitos completados hoy
-    progreso: number;           // 0-100
+    progreso: number; // 0-100
+    streak: number;
     loadingHabits: boolean;
     toggleHabito: (habitId: string) => void;
     createHabit: (data: Omit<habit, "_id">) => Promise<void>;
@@ -41,6 +43,8 @@ export function HabitProvider({ children }: { children: ReactNode }) {
     const [habits, setHabits] = useState<habit[]>([]);
     const [todayHistory, setTodayHistory] = useState<habitHistory[]>([]);
     const [loadingHabits, setLoadingHabits] = useState(true);
+    const [streak, setStreak] = useState<number>(0)
+
 
     // IDs de los hábitos que están completados hoy
     // Los sacamos del historial filtrando isCompleted === true
@@ -60,12 +64,14 @@ export function HabitProvider({ children }: { children: ReactNode }) {
     const loadData = async () => {
         setLoadingHabits(true);
         try {
-            const [allHabits, history] = await Promise.all([
+            const [allHabits, history, currentStreak] = await Promise.all([
                 getHabits(),
                 getTodayHistory(),
+                getStreak(),
             ]);
             setHabits(allHabits);
             setTodayHistory(history);
+            setStreak(currentStreak);
 
             lastLoadedDateRef.current = new Date().toDateString();
         } catch (error) {
@@ -115,6 +121,8 @@ export function HabitProvider({ children }: { children: ReactNode }) {
 
         document.addEventListener("visibilitychange", checkDayChange);
 
+
+
         return () => {
             clearTimeout(midnightTimeoutId.current)
             window.removeEventListener("focus", checkDayChange);
@@ -159,6 +167,11 @@ export function HabitProvider({ children }: { children: ReactNode }) {
                     h.habitId === habitId ? habitHistoryReal : h
                 )
             );
+            const upgradeStreak = await getStreak().catch((err) => {
+                console.log("error al recuperar el streak", err)
+                return 0;
+            })
+            setStreak(upgradeStreak);
         } catch (error) {
             // Si falla, revertimos
             console.error("Error al actualizar hábito:", error);
@@ -181,6 +194,11 @@ export function HabitProvider({ children }: { children: ReactNode }) {
             setHabits((prev) =>
                 prev.map((h) => (h._id === tempId ? habitReal : h))
             );
+            const upgradeStreak = await getStreak().catch((err) => {
+                console.log("error al recuperar el streak", err)
+                return 0;
+            })
+            setStreak(upgradeStreak);
         } catch (error) {
             setHabits((prev) => prev.filter((h) => h._id !== tempId));
             console.error("Error al crear hábito:", error);
@@ -188,9 +206,19 @@ export function HabitProvider({ children }: { children: ReactNode }) {
     };
 
     // ─── Borrar hábito ────────────────────────────────────────
-    const onDelete = (habito: habit) => {
+    const onDelete = async (habito: habit) => {
         setHabits((prev) => prev.filter((h) => h._id !== habito._id));
-        deleteHabit(habito._id);
+        try {
+            await deleteHabit(habito._id);
+            const upgradeStreak = await getStreak().catch((err) => {
+                console.log("error al recuperar el streak", err)
+                return 0;
+            })
+            setStreak(upgradeStreak);
+        } catch (error) {
+            console.log("Ocurrio un error al eliminar el habito", error)
+        }
+
     };
 
     // ─── Editar hábito ────────────────────────────────────────
@@ -214,6 +242,7 @@ export function HabitProvider({ children }: { children: ReactNode }) {
                 todayHistory,
                 completados,
                 progreso,
+                streak,
                 loadingHabits,
                 toggleHabito,
                 createHabit,

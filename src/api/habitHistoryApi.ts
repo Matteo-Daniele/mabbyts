@@ -42,3 +42,21 @@ export async function toggleHabitHistory(
 
     return response.json();
 }
+
+export async function getStreak(): Promise<number> {
+    const savedToken = localStorage.getItem("token");
+
+    const response = await fetchAuth(`${API_URL}/habit-history/streak`, {
+        method: "GET",
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${savedToken}`
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error("Error al traer la racha de días");
+    }
+    const data = await response.json();
+    return data.streak;
+}
