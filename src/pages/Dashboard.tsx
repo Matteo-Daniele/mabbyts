@@ -1,13 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import {
     Flame, Trophy, Target, Calendar,
-    CheckCircle2, Circle,
     Heart, Dumbbell, BookOpen, Briefcase, Sparkles, Droplets, Footprints, PenLine,
 } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import { useHabits } from "../context/HabitContext";
 import type { habit } from "../types/auth.types";
-import ProgressBar from "../components/ProgressBar";
 import ShowHabits from "../components/ShowHabits";
 
 // ── Mapa categoría → icono ──────────────────────────────────────────
@@ -31,48 +29,7 @@ const PLACEHOLDER_BARS = [65, 80, 55, 90, 40, 70, 50];
 // ── Progreso circular SVG ───────────────────────────────────────────
 
 
-// ── Tarjeta de hábito para el dashboard ────────────────────────────
-function HabitRow({ habit, done, onToggle }: { habit: habit; done: boolean; onToggle: () => void }) {
-    const Icon = getIcon(habit);
-    return (
-        <button
-            onClick={onToggle}
-            className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl border border-paper-dark bg-white hover:border-forest/20 hover:shadow-md transition-all duration-200 cursor-pointer text-left group"
-        >
-            {/* Icono de categoría */}
-            <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-paper transition-colors group-hover:bg-forest/5">
-                <Icon className="w-5 h-5 text-forest" />
-            </div>
 
-            {/* Información del hábito */}
-            <div className="flex-1 min-w-0">
-                <p className={`font-bold text-sm md:text-base leading-tight text-charcoal transition-all ${done ? 'opacity-50 line-through' : ''
-                    }`}>
-                    {habit.name}
-                </p>
-                {(habit.objective || habit.description) && (
-                    <p className={`text-xs mt-1 text-charcoal-light transition-all ${done ? 'opacity-40' : ''
-                        }`}>
-                        {habit.objective || habit.description}
-                    </p>
-                )}
-            </div>
-
-            {/* Checkbox circular */}
-            <div className="shrink-0 transition-all duration-200">
-                {done ? (
-                    <div className="w-6 h-6 rounded-full bg-forest flex items-center justify-center text-white scale-110 shadow-sm shadow-forest/10">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                    </div>
-                ) : (
-                    <div className="w-6 h-6 rounded-full border border-charcoal/20 group-hover:border-charcoal/40 transition-colors" />
-                )}
-            </div>
-        </button>
-    );
-}
 
 // ═══════════════════════════════════════════════════════════════════
 export function Dashboard() {
@@ -90,32 +47,12 @@ export function Dashboard() {
         return () => { clearTimeout(revealTimer); clearTimeout(removeTimer); };
     }, []);
 
-    const { habits, completados, progreso, toggleHabito } = useHabits();
-
-    const dailyHabits = habits.filter(h => h.frequency === 'daily');
-    const weeklyHabits = habits.filter(h => h.frequency === 'weekly');
+    const { habits, completados, progreso, streak } = useHabits();
     const recentDone = habits.filter(h => completados.includes(h._id)).slice(0, 4);
 
     // Día actual para resaltar en el gráfico (0=Dom → convertimos a Lun-first)
     const today = new Date().getDay();
     const todayIdx = today === 0 ? 6 : today - 1;
-
-    const renderHabitSection = (list: habit[], title: string) =>
-        list.length > 0 ? (
-            <div>
-                <h3 className="text-forest-dark font-serif text-xl font-bold mb-4">{title}</h3>
-                <div className="space-y-3">
-                    {list.map(h => (
-                        <HabitRow
-                            key={h._id}
-                            habit={h}
-                            done={completados.includes(h._id)}
-                            onToggle={() => toggleHabito(h._id)}
-                        />
-                    ))}
-                </div>
-            </div>
-        ) : null;
 
     return (
         <>
@@ -208,7 +145,9 @@ export function Dashboard() {
                                     <div className="w-9 h-9 rounded-full bg-[#FDF0EC] flex items-center justify-center mb-2.5">
                                         <Flame className="w-5 h-5 text-coral fill-coral/10" />
                                     </div>
-                                    <p className="text-2xl font-bold font-serif text-forest-dark leading-none mt-1">12 días</p>
+                                    <p className="text-2xl font-bold font-serif text-forest-dark leading-none mt-1">
+                                        {streak} {streak === 1 ? 'día' : 'días'}
+                                    </p>
                                     <p className="text-charcoal-light/80 text-xs font-semibold mt-1">Racha actual</p>
                                 </div>
                                 {/* Mejor racha */}
